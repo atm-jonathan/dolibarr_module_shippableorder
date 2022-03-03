@@ -548,6 +548,7 @@ class ShippableOrder
 					$shipping->note_public = $this->order->note_public;
 					$shipping->note_private = $this->order->note_private;
 					$shipping->shipping_method_id = $this->order->shipping_method_id;
+					$shipping->ref_customer = $this->order->ref_client;
 
 					$shipping->weight_units = 0;
 					$shipping->weight = "NULL";
@@ -616,6 +617,7 @@ class ShippableOrder
 					$shipping->date_delivery = $this->order->date_livraison;
 					$shipping->note_public = $this->order->note_public;
 					$shipping->note_private = $this->order->note_private;
+					$shipping->ref_customer = $this->order->ref_client;
 
 					$shipping->weight_units = 0;
 					$shipping->weight = "NULL";
