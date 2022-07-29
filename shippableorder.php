@@ -34,6 +34,8 @@ $langs->load('products');
 $langs->load('other');
 $langs->load('shippableorder@shippableorder');
 
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 $orderyear = GETPOST("orderyear", "int");
 $ordermonth = GETPOST("ordermonth", "int");
 $deliveryyear = GETPOST("deliveryyear", "int");
@@ -716,7 +718,8 @@ if ($resql) {
 	
 	if ($num > 0 && $user->rights->expedition->creer) {
 		print '<input type="hidden" name="action" value="createShipping"/>';
-		print '<br /><input style="float:right" class="butAction" type="submit" name="subCreateShip" value="' . $langs->trans('CreateShipmentButton') . '" />';
+        print '<input type="hidden" name="token" value="'.$newToken.'">';
+        print '<br /><input style="float:right" class="butAction" type="submit" name="subCreateShip" value="' . $langs->trans('CreateShipmentButton') . '" />';
 		if ($conf->global->SHIPPABLEORDER_ALLOW_CHANGE_STATUS_WITHOUT_SHIPMENT && empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)) {
 			print '<input style="float:right" class="butAction" type="submit" name="subSetSent" value="' . $langs->trans('SetOrderSentButton') . '" />';
 		}
