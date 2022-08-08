@@ -1,6 +1,11 @@
 # ChangeLog for ShippableOrder
 
 ## Unreleased
+
+
+
+## 2.3
+
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 2.3.0
 
 ## 2.2
