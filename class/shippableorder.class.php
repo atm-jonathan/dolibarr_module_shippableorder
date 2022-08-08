@@ -83,10 +83,14 @@ class ShippableOrder
 			
 			if (!empty($conf->global->SHIPPABLE_ORDER_ALLOW_ALL_LINE) || ($line->product_type==0 && $line->fk_product>0))
 			{
+				if(empty($line->nbShippable)) $line->nbShippable = 0;
+				if(empty($line->nbPartiallyShippable)) $line->nbPartiallyShippable = 0;
+				if(empty($line->nbProduct)) $line->nbProduct = 0;
 				// Prise en compte des quantité déjà expédiéesz
 				if(empty($conf->global->SHIPPABLEORDER_DONT_CHECK_DRAFT_SHIPPING_QTY) || !$this->isDraftShipping($line->id)) {
 					
-					$qtyAlreadyShipped = $this->order->expeditions[$line->id];
+					if(!empty($this->order->expeditions[$line->id])) $qtyAlreadyShipped = $this->order->expeditions[$line->id];
+					else $qtyAlreadyShipped = 0;
 					
 				}
 				
@@ -95,12 +99,12 @@ class ShippableOrder
 				$isshippable = $this->isLineShippable($line, $TSomme);
 				
 				// Expédiable si toute la quantité est expédiable
-				if($isshippable == 1) {
+				if(!empty($isshippable) && $isshippable == 1) {
 					$line->nbShippable++;
 					$this->nbShippable++;
 				}
 				
-				if($isshippable == 2) {
+				if(!empty($isshippable) && $isshippable == 2) {
 					$line->nbPartiallyShippable++;
 					$this->nbPartiallyShippable++;
 				}
@@ -142,7 +146,7 @@ class ShippableOrder
 		global $conf, $user;
 		
 		$db = &$this->db;
-
+		if(empty($TSomme[$line->fk_product])) $TSomme[$line->fk_product] = 0;
 		$TSomme[$line->fk_product] += $line->qty_toship;
 
 		if(!isset($line->stock) && $line->fk_product > 0) {
@@ -199,7 +203,7 @@ class ShippableOrder
      */
     public static function getQtyShippable($stock, $line, $TSomme) {
         global $conf;
-        if ($conf->global->SHIPPABLE_ORDER_ALLOW_SHIPPING_IF_NOT_ENOUGH_STOCK )
+        if (!empty($conf->global->SHIPPABLE_ORDER_ALLOW_SHIPPING_IF_NOT_ENOUGH_STOCK))
 		{
 			$isShippable = 1;
 			$qtyShippable = $line->qty;
@@ -285,7 +289,8 @@ class ShippableOrder
 	
 	function orderLineStockStatus(&$line, $withStockVisu = false){
 		global $langs;
-		
+		if(empty($line)) $line = new stdClass();
+		if(empty($line->id)) $line->id = 0;
 		if(isset($this->TlinesShippable[$line->id])) {
 			$isShippable = $this->TlinesShippable[$line->id];
 		} else {
@@ -636,7 +641,7 @@ class ShippableOrder
                             setEventMessages($hookmanager->error, $hookmanager->errors, 'errors');
                         }
 
-					    if ($this->TlinesShippable[$line->id]['stock'] > 0)
+					    if (!empty($this->TlinesShippable[$line->id]) && $this->TlinesShippable[$line->id]['stock'] > 0)
 						{
                             $r  = ($this->TlinesShippable[$line->id]['qty_shippable'] > $this->TlinesShippable[$line->id]['to_ship']) ? $this->TlinesShippable[$line->id]['to_ship'] : $this->TlinesShippable[$line->id]['qty_shippable'];
 							$shipping->addline($TEnt_comm[$this->order->id], $line->id, $r);

@@ -49,7 +49,7 @@ function shippableorderAdminPrepareHead()
     //$this->tabs = array(
     //	'entity:-tabname:Title:@shippableorder:/shippableorder/mypage.php?id=__ID__'
     //); // to remove a tab
-    complete_head_from_modules($conf, $langs, $object, $head, $h, 'shippableorder');
+    complete_head_from_modules($conf, $langs, new stdClass(), $head, $h, 'shippableorder');
 
     return $head;
 }
