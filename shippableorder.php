@@ -34,6 +34,8 @@ $langs->load('products');
 $langs->load('other');
 $langs->load('shippableorder@shippableorder');
 
+$newToken = function_exists('newToken') ? newToken() : $_SESSION['newtoken'];
+
 $orderyear = GETPOST("orderyear", "int");
 $ordermonth = GETPOST("ordermonth", "int");
 $deliveryyear = GETPOST("deliveryyear", "int");
@@ -62,7 +64,8 @@ $result = restrictedArea($user, 'commande', $id, '');
 
 $sortfield = GETPOST("sortfield", 'alpha');
 $sortorder = GETPOST("sortorder", 'alpha');
-
+$offset = 0;
+$offset = 0;
 $page = GETPOST("page", 'int');
 $page = intval($page);
 if ($page == - 1) {
@@ -95,7 +98,7 @@ $confirm = GETPOST('confirm');
 $formconfirm = '';
 $form=new Form($db);
 
-$action = $_REQUEST['action'];
+$action = GETPOST('action','alphanohtml');
 
 switch ($action) {
 	case 'createShipping' :
@@ -251,7 +254,7 @@ else
 	$sql = 'SELECT s.nom, s.rowid as socid, s.client, c.rowid, c.ref, c.total_ht, c.ref_client,';
 	$sql .= ' c.date_valid, c.date_commande, c.note_private, c.date_livraison, c.fk_statut, c.facture as facturee,';
 }
-if ($conf->clinomadic->enabled) {
+if (!empty($conf->clinomadic->enabled)) {
 	$sql .= " ce.reglement_recu,";
 }
 if(!empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE))  $sql .= 'cd.qty as qty_prod';
@@ -259,7 +262,7 @@ else $sql .= ' (SELECT SUM(qty) FROM ' . MAIN_DB_PREFIX . 'commandedet WHERE fk_
 $sql .= ' FROM ' . MAIN_DB_PREFIX . 'societe as s';
 $sql .= ', ' . MAIN_DB_PREFIX . 'commande as c';
 $sql .= ', ' . MAIN_DB_PREFIX . 'commandedet as cd';
-if ($conf->clinomadic->enabled) {
+if (!empty($conf->clinomadic->enabled)) {
 	$sql .= " LEFT JOIN " . MAIN_DB_PREFIX . "commande_extrafields as ce ON (ce.fk_object = cd.fk_commande)";
 }
 if(!empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)){
@@ -447,7 +450,7 @@ if ($resql) {
 	if ($limit === false)
 		print '<input type="hidden" name="show_all" value="1" />';
 	print_liste_field_titre($langs->trans('Ref'), $_SERVER["PHP_SELF"], 'c.ref', '', $param, '', $sortfield, $sortorder);
-	if ($conf->clinomadic->enabled)
+	if (!empty($conf->clinomadic->enabled))
 		print_liste_field_titre($langs->trans('Règlement'), $_SERVER["PHP_SELF"], 'c.ref_client', '', $param, '', $sortfield, $sortorder);
 	print_liste_field_titre($langs->trans('RefCustomerOrder'), $_SERVER["PHP_SELF"], 'c.ref_client', '', $param, '', $sortfield, $sortorder);
 	if (!empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE))
@@ -583,7 +586,7 @@ if ($resql) {
 			print '</td>';
 			
 			// Payer : oui/non spécific Nomadic
-			if ($conf->clinomadic->enabled) {
+			if (!empty($conf->clinomadic->enabled)) {
 				print '<td align="center" class="nowrap" style="font-weight:bold;">' . ucfirst(($objp->reglement_recu != 'oui') ? "Non" : $objp->reglement_recu) . '</td>';
 			}
 			
@@ -629,7 +632,18 @@ if ($resql) {
 			
 			// Amount HT
 			print '<td align="right" class="nowrap">' . price($objp->total_ht) . '</td>';
-
+            if(empty($objp->lineid))$objp->lineid=0;
+			if(empty($shippableOrder->TlinesShippable[$objp->lineid])) {
+				$shippableOrder->TlinesShippable[$objp->lineid] = array(
+					'stock' => 0,
+					'shippable' => 0,
+					'to_ship' => 0,
+					'qty_shippable' => 0,
+					'stock_virtuel' => 0,
+					'isShippableVirtual' => 0,
+					'qtyShippableVirtual' => 0
+				);
+			}
 			// Amount HT remain to ship
 			if(!empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)){
 				print '<td align="right" class="nowrap">' . price(round($shippableOrder->TlinesShippable[$objp->lineid]['to_ship']*$objp->subprice, 2)) . '</td>';
@@ -638,12 +652,13 @@ if ($resql) {
 			
 			// Statut
 			print '<td align="right" class="nowrap">' . $generic_commande->LibStatut($objp->fk_statut, $objp->facturee, 5) . '</td>';
-			
+
 			// Quantité de produit
 			print '<td align="right" class="qty" data-qty_shippable="'.$shippableOrder->TlinesShippable[$objp->lineid]['qty_shippable'].'" class="nowrap">' . $objp->qty_prod . '</td>';
 			
 			// Expédiable
-			print  !empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)?'<td align="right" class="nowrap">' .$shippableOrder->orderLineStockStatus($orderLine,true). '</td>':'<td align="right" class="nowrap">' .$shippableOrder->orderStockStatus(true, 'txt', $objp->lineid) . '</td>';
+            $TPictoShippable = $shippableOrder->orderLineStockStatus($orderLine,true);
+			print  !empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)?'<td align="right" class="nowrap">' .$TPictoShippable[0]. '</td>':'<td align="right" class="nowrap">' .$shippableOrder->orderStockStatus(true, 'txt', $objp->lineid) . '</td>';
 			
 			if (! empty($conf->global->SHIPPABLEORDER_DEFAULT_WAREHOUSE)) {
 				$default_wharehouse = $conf->global->SHIPPABLEORDER_DEFAULT_WAREHOUSE;
@@ -678,7 +693,7 @@ if ($resql) {
 					print '<td align="right" class="nowrap">' . $formproduct->selectWarehouses($default_wharehouse, 'TEnt_comm[' . $checkId . ']', '', 1) . '</td>';
 					$checked = $shippableOrder->is_ok_for_shipping() && strtotime($objp->date_livraison) <= dol_now() ? 'checked="checked"' : '';
 				}
-				if ($conf->global->SHIPPABLEORDER_NO_DEFAULT_CHECK) {
+				if (!empty($conf->global->SHIPPABLEORDER_NO_DEFAULT_CHECK)) {
 					$checked = false;
 				}
 				
@@ -715,8 +730,9 @@ if ($resql) {
 	
 	if ($num > 0 && $user->rights->expedition->creer) {
 		print '<input type="hidden" name="action" value="createShipping"/>';
-		print '<br /><input style="float:right" class="butAction" type="submit" name="subCreateShip" value="' . $langs->trans('CreateShipmentButton') . '" />';
-		if ($conf->global->SHIPPABLEORDER_ALLOW_CHANGE_STATUS_WITHOUT_SHIPMENT && empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)) {
+        print '<input type="hidden" name="token" value="'.$newToken.'">';
+        print '<br /><input style="float:right" class="butAction" type="submit" name="subCreateShip" value="' . $langs->trans('CreateShipmentButton') . '" />';
+		if (!empty($conf->global->SHIPPABLEORDER_ALLOW_CHANGE_STATUS_WITHOUT_SHIPMENT) && empty($conf->global->SHIPPABLEORDER_SELECT_BY_LINE)) {
 			print '<input style="float:right" class="butAction" type="submit" name="subSetSent" value="' . $langs->trans('SetOrderSentButton') . '" />';
 		}
 	}
@@ -737,7 +753,7 @@ if ($resql) {
 	</table>
 
 <?php
-	if ($conf->global->SHIPPABLEORDER_GENERATE_GLOBAL_PDF) {
+	if (!empty($conf->global->SHIPPABLEORDER_GENERATE_GLOBAL_PDF)) {
 		print '<br><br>';
 		// We disable multilang because we concat already existing pdf.
 		$formfile = new FormFile($db);
