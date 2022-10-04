@@ -1,4 +1,8 @@
 <?php
+if (!defined("NOCSRFCHECK")) define('NOCSRFCHECK', 1);
+if (!defined("NOTOKENRENEWAL")) define('NOTOKENRENEWAL', 1);
+
+if (!defined('NOTOKENRENEWAL')) define('NOTOKENRENEWAL', 1); // Disables token renewal
 
 require '../config.php';
 
@@ -29,11 +33,11 @@ switch ($set) {
 function _getBatchLines($quantityToBeDelivered, $fk_product, $lineid, $warehouse_id)
 {
 	global $conf, $db, $langs;
-	
+
 	dol_include_once('/product/class/product.class.php');
 	$langs->load('sendings');
 	$langs->load('productbatch');
-	
+
 
 	$product = new Product($db);
 	$product->fetch($fk_product);
@@ -44,10 +48,10 @@ function _getBatchLines($quantityToBeDelivered, $fk_product, $lineid, $warehouse
 	/*
 	 * Copier coller de la card expedition
 	 */
-	
+
 	if (!empty($conf->productbatch->enabled) && $product->hasbatch())
 	{
-		
+
 		$out='';
 		$subj = 0;
 		// Define nb of lines suggested for this order line
