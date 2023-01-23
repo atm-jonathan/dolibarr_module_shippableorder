@@ -681,12 +681,12 @@ class ShippableOrder
 
 			
 			if($nbShippingCreated > 0) {
-				if($conf->global->SHIPPABLEORDER_GENERATE_GLOBAL_PDF) $this->generate_global_pdf($TFiles);	
+				if(!empty($conf->global->SHIPPABLEORDER_GENERATE_GLOBAL_PDF)) $this->generate_global_pdf($TFiles);
 				
 				setEventMessage($langs->trans('NbShippingCreated', $nbShippingCreated));
 				$dol_version = (float) DOL_VERSION;
 				
-				if ($conf->global->SHIPPABLE_ORDER_DISABLE_AUTO_REDIRECT)
+				if (!empty($conf->global->SHIPPABLE_ORDER_DISABLE_AUTO_REDIRECT))
 				{
 
 					header("Location: ".$_SERVER["PHP_SELF"].'?'.http_build_query($TURL) );					
@@ -700,7 +700,7 @@ class ShippableOrder
 				setEventMessage($langs->trans('NoOrderSelectedOrAlreadySent'), 'warnings');
 				$dol_version = (float) DOL_VERSION;
 				
-				if ($conf->global->SHIPPABLE_ORDER_DISABLE_AUTO_REDIRECT)
+				if (!empty($conf->global->SHIPPABLE_ORDER_DISABLE_AUTO_REDIRECT))
 				{
 					header("Location: ".$_SERVER["PHP_SELF"].'?'.http_build_query($TURL) );					
 				}else{
