@@ -297,8 +297,8 @@ class ShippableOrder
 			return '';
 		}
 
-        $picto = self::getPicto('stock', $isShippable['to_ship'], $isShippable['shippable'], $isShippable['stock'], $isShippable['qty_shippable'], $line);
-        $virtualPicto = self::getPicto('virtualStock', $isShippable['to_ship'], $isShippable['isShippableVirtual'], $isShippable['stock_virtuel'], $isShippable['qtyShippableVirtual'], $line);
+        $picto = self::getPicto($isShippable['to_ship'], $isShippable['shippable'], $isShippable['stock'], $isShippable['qty_shippable'], $line, 'stock');
+        $virtualPicto = self::getPicto($isShippable['to_ship'], $isShippable['isShippableVirtual'], $isShippable['stock_virtuel'], $isShippable['qtyShippableVirtual'], $line, 'virtualStock');
 
 		if($withStockVisu) {
 			return array($isShippable['stock'].' '.$picto, $isShippable['stock_virtuel'].' '.$virtualPicto);
@@ -359,7 +359,7 @@ class ShippableOrder
      * @param OrderLine $line
      * @return string
      */
-    public static function getPicto($type, $toship, $shippable, $stock, $qty_shippable, $line) {
+    public static function getPicto($toship, $shippable, $stock, $qty_shippable, $line, $type = 'stock') {
         $pictopath = self::getPictoPath($toship, $shippable);
 		$infos = self::getPictoInfos($stock, $toship, $qty_shippable, $type);
         $picto = '<img src="'.$pictopath.'" border="0" title="'.$infos.'">';

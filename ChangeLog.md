@@ -6,7 +6,7 @@
 
 ## 2.3
 
-- FIX : Fix tooltip (ording and translation) for theorical stock on customer order *23/01/2022* 2.3.2
+- FIX : Fix tooltip (wording and translation) for theorical stock on customer order *23/01/2022* 2.3.2
 - FIX : Missing module icon  *17/10/2022* 2.3.1
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 2.3.0
 
