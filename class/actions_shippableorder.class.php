@@ -41,33 +41,63 @@ class ActionsShippableorder
                 $virtualTooltip = ShippableOrder::prepareTooltip();
                 $textColor = $conf->global->THEME_ELDY_TEXTTITLE;
 
+
+				$jsConf = array(
+						'textColor' => $textColor,
+						'langs' => array(
+							'TheoreticalStock' => $form->textwithpicto($langs->trans('TheoreticalStock'), $virtualTooltip),
+							'RealStock' => $langs->trans('RealStock')
+						),
+						'lines' => array()
+				);
+
+				foreach($object->lines as &$line) {
+					$stock = $shippableOrder->orderLineStockStatus($line,true);
+					$jsConf['lines'][] = array(
+						'id' => $line->id,
+						'stockReal' => $stock[0],
+						'stockVirtual' => $stock[1]
+					) ;
+				}
+
                 ?>
                 <script type="text/javascript">
-                    $('table#tablelines tr.liste_titre td.linecoldescription').first().after('<td class="linecolstock" align="right" style="color:<?php echo $textColor ?>;"><?php echo $form->textwithpicto($langs->trans('TheoreticalStock'), $virtualTooltip) ?></td><td class="linecolstock" align="right" style="<?php echo $textColor ?>;"><?php echo $langs->trans('RealStock') ?></td>');
+
+					let shipOrderJsConf = <?php echo json_encode($jsConf); ?>;
+					let emptyCols = '<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>';
+
+					// Header line
+                    $('table#tablelines tr.liste_titre .linecoldescription').first().after(
+						'<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">:' + shipOrderJsConf.langs.TheoreticalStock + '</td>'
+						+ '<td class="linecolstock" align="right" style="' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.RealStock + '</td>');
 					let colSpanToAdd = 2;
 
+
+					// Subtotal Compatibility
 					$('table#tablelines tr[rel="subtotal"] td[colspan]:first').each(function( index ) {
 						// title and subtitle must have colspan if not it's pro
 						let curentColSpan = parseInt($( this ).attr('colspan'));
 						$( this ).attr('colspan', curentColSpan + colSpanToAdd);
+						// $( this ).attr('ezfezfezfezfezf', curentColSpan + colSpanToAdd);
+						// TODO pour l'instant le sous total marche pas je sais pas pk et le colpans fait 1 de trop mais c'est peut être dû a sous total
 					});
 
-                    <?php
-                    foreach($object->lines as &$line) {
+					if(shipOrderJsConf.lines != undefined && shipOrderJsConf.lines.length > 0){
+						shipOrderJsConf.lines.forEach(function (item, index, arr){
+							$('table#tablelines tr[id=row-' + item.id + '] td.linecoldescription').after(
+								'<td class="linecolstockvirtual nowrap" align="right">'+ item.stockVirtual +'</td>'
+								+'<td class="linecolstock nowrap" align="right">'+ item.stockReal +'</td>'
+							);
+						});
+					}
 
-                        $stock = $shippableOrder->orderLineStockStatus($line,true);
 
-                        ?>
-                        $('table#tablelines tr[id=row-<?php echo $line->id; ?>] td.linecoldescription').after("<td class=\"linecolstockvirtual nowrap\" align=\"right\"><?php echo addslashes($stock[1]) ?></td><td class=\"linecolstock nowrap\" align=\"right\"><?php echo addslashes($stock[0]) ?></td>");
-                        <?php
-                    } ?>
-                    $('table#tablelines tr.liste_titre_add td.linecoldescription').first().after('<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>');
-                    $('table#tablelines tr.liste_titre_add').next().children('td.linecoldescription').first().after('<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>');
-
-                    $('table#tablelines tr.liste_titre_create td.linecoldescription').first().after('<td class="linecolstockvirtual nobottom" align="right"></td><td class="linecolstock nobottom" align="right"></td>');
-                    $('table#tablelines tr.liste_titre_create').next().children('td.linecoldescription').first().after('<td class="linecolstockvirtual nobottom" align="right"></td><td class="linecolstock nobottom" align="right"></td>');
-                    $('#trlinefordates td:first').after('<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>'); // Add empty column in objectline_create
-                    if($('tr[id^="extrarow"]').length > 0) $('tr[id^="extrarow"] td:first').after('<td class="linecolstockvirtual" align="right"></td<td class="linecolstock" align="right"></td>');
+                    $('table#tablelines tr.liste_titre_add td.linecoldescription').first().after(emptyCols);
+                    $('table#tablelines tr.liste_titre_add').next().children('td.linecoldescription').first().after(emptyCols);
+                    $('table#tablelines tr.liste_titre_create td.linecoldescription').first().after(emptyCols);
+                    $('table#tablelines tr.liste_titre_create').next().children('td.linecoldescription').first().after(emptyCols);
+                    $('#trlinefordates td:first').after(emptyCols); // Add empty column in objectline_create
+                    if($('tr[id^="extrarow"]').length > 0) $('tr[id^="extrarow"] td:first').after(emptyCols);
                 </script>
 			<?php
             }
