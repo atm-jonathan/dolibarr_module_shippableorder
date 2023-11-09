@@ -207,7 +207,6 @@ class ShippableOrder
 		{
 			$isShippable = 1;
 			$qtyShippable = $line->qty;
-			$line->stock = $line->qty;
 		}
         else if($stock <= 0 || $line->qty_toship <= 0) {
 			$isShippable = 0;
