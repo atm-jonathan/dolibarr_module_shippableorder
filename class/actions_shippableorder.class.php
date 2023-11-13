@@ -70,7 +70,7 @@ class ActionsShippableorder
 					// Header line
                     $('table#tablelines tr.liste_titre .linecoldescription').first().after(
 						'<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">:' + shipOrderJsConf.langs.TheoreticalStock + '</td>'
-						+ '<td class="linecolstock" align="right" style="' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.RealStock + '</td>');
+						+ '<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.RealStock + '</td>');
 
 
 
@@ -103,7 +103,7 @@ class ActionsShippableorder
                 </script>
 			<?php
             }
-
+		}
 	}
 
 }
