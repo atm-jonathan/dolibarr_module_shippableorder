@@ -65,21 +65,23 @@ class ActionsShippableorder
 
 					let shipOrderJsConf = <?php echo json_encode($jsConf); ?>;
 					let emptyCols = '<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>';
+					let colSpanToAdd = 1; // TODO normalement c'est 2 mais je sais pas pourquoi ça créé un décalage
 
 					// Header line
                     $('table#tablelines tr.liste_titre .linecoldescription').first().after(
 						'<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">:' + shipOrderJsConf.langs.TheoreticalStock + '</td>'
 						+ '<td class="linecolstock" align="right" style="' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.RealStock + '</td>');
-					let colSpanToAdd = 2;
+
 
 
 					// Subtotal Compatibility
-					$('table#tablelines tr[rel="subtotal"] td[colspan]:first').each(function( index ) {
-						// title and subtitle must have colspan if not it's pro
-						let curentColSpan = parseInt($( this ).attr('colspan'));
-						$( this ).attr('colspan', curentColSpan + colSpanToAdd);
-						// $( this ).attr('ezfezfezfezfezf', curentColSpan + colSpanToAdd);
-						// TODO pour l'instant le sous total marche pas je sais pas pk et le colpans fait 1 de trop mais c'est peut être dû a sous total
+					$('table#tablelines tr[rel="subtotal"]').each(function( index ) {
+						let col = $(this).find('td[colspan]:first');
+						if(col){
+							// title and subtitle must have colspan if not it's pro
+							let curentColSpan = parseInt(col.attr('colspan'));
+							col.attr('colspan', curentColSpan + colSpanToAdd);
+						}
 					});
 
 					if(shipOrderJsConf.lines != undefined && shipOrderJsConf.lines.length > 0){
