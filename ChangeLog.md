@@ -6,7 +6,10 @@
 
 ## 2.3
 
-- FIX : Subtotal compatibility *13/11/2023* 2.3.2
+- FIX : Subtotal compatibility *13/11/2023* 2.3.5
+- FIX : wrong js selector *28/02/2022* 2.3.4
+- FIX : Fix tooltip (wording and translation) for theorical stock on customer order *23/01/2022* 2.3.3
+- FIX : Compat PHP 8.1 V17  *17/01/2023* 2.3.2
 - FIX : Missing module icon  *17/10/2022* 2.3.1
 - NEW : Ajout de la class TechATM pour l'affichage de la page "A propos" *11/05/2022* 2.3.0
 

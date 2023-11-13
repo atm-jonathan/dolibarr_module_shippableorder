@@ -33,13 +33,13 @@ class ActionsShippableorder
 		if (in_array('ordercard',explode(':',$parameters['context'])) && $object->statut < 3)
         {
             if (!empty($object->lines)) {
-                dol_include_once('/shippableorder/class/shippableorder.class.php');
-                include_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+				dol_include_once('/shippableorder/class/shippableorder.class.php');
+				include_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 
-                $shippableOrder =  &$object->shippableorder;
-                $form = new Form($db);
-                $virtualTooltip = ShippableOrder::prepareTooltip();
-                $textColor = $conf->global->THEME_ELDY_TEXTTITLE;
+				$shippableOrder =  &$object->shippableorder;
+				$form = new Form($db);
+				$virtualTooltip = ShippableOrder::prepareTooltip();
+				$textColor = !empty($conf->global->THEME_ELDY_TEXTTITLE) ? $conf->global->THEME_ELDY_TEXTTITLE : '';
 
 
 				$jsConf = array(
@@ -103,7 +103,6 @@ class ActionsShippableorder
                 </script>
 			<?php
             }
-		}
 
 	}
 
