@@ -6,6 +6,7 @@
 
 ## 2.3
 
+- FIX : Subtotal compatibility *13/11/2023* 2.3.5
 - FIX : wrong js selector *28/02/2022* 2.3.4
 - FIX : Fix tooltip (wording and translation) for theorical stock on customer order *23/01/2022* 2.3.3
 - FIX : Compat PHP 8.1 V17  *17/01/2023* 2.3.2

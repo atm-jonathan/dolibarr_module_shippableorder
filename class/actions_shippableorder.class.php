@@ -32,39 +32,78 @@ class ActionsShippableorder
 
 		if (in_array('ordercard',explode(':',$parameters['context'])) && $object->statut < 3)
         {
+            if (!empty($object->lines)) {
+				dol_include_once('/shippableorder/class/shippableorder.class.php');
+				include_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
 
-			dol_include_once('/shippableorder/class/shippableorder.class.php');
-			include_once DOL_DOCUMENT_ROOT.'/core/class/html.form.class.php';
+				$shippableOrder =  &$object->shippableorder;
+				$form = new Form($db);
+				$virtualTooltip = ShippableOrder::prepareTooltip();
+				$textColor = !empty($conf->global->THEME_ELDY_TEXTTITLE) ? $conf->global->THEME_ELDY_TEXTTITLE : '';
 
-			$shippableOrder =  &$object->shippableorder;
-            $form = new Form($db);
-            $virtualTooltip = ShippableOrder::prepareTooltip();
-            $textColor = !empty($conf->global->THEME_ELDY_TEXTTITLE) ? $conf->global->THEME_ELDY_TEXTTITLE : '';
 
-			?>
-			<script type="text/javascript">
-				$('table#tablelines tr.liste_titre .linecoldescription').first().after('<td class="linecolstock" align="right" style="color:<?php echo $textColor ?>;"><?php echo $form->textwithpicto($langs->trans('TheoreticalStock'), $virtualTooltip) ?></td><td class="linecolstock" align="right" style="<?php echo $textColor ?>;"><?php echo $langs->trans('RealStock') ?></td>');
+				$jsConf = array(
+						'textColor' => $textColor,
+						'langs' => array(
+							'TheoreticalStock' => $form->textwithpicto($langs->trans('TheoreticalStock'), $virtualTooltip),
+							'RealStock' => $langs->trans('RealStock')
+						),
+						'lines' => array()
+				);
 
-                <?php
 				foreach($object->lines as &$line) {
-
 					$stock = $shippableOrder->orderLineStockStatus($line,true);
+					$jsConf['lines'][] = array(
+						'id' => $line->id,
+						'stockReal' => $stock[0],
+						'stockVirtual' => $stock[1]
+					) ;
+				}
 
-					?>
-					$('table#tablelines tr[id=row-<?php echo $line->id; ?>] td.linecoldescription').after("<td class=\"linecolstockvirtual nowrap\" align=\"right\"><?php echo addslashes($stock[1]) ?></td><td class=\"linecolstock nowrap\" align=\"right\"><?php echo addslashes($stock[0]) ?></td>");
-					<?php
-				} ?>
-				$('table#tablelines tr.liste_titre_add td.linecoldescription').first().after('<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>');
-				$('table#tablelines tr.liste_titre_add').next().children('td.linecoldescription').first().after('<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>');
+                ?>
+                <script type="text/javascript">
 
-				$('table#tablelines tr.liste_titre_create td.linecoldescription').first().after('<td class="linecolstockvirtual nobottom" align="right"></td><td class="linecolstock nobottom" align="right"></td>');
-				$('table#tablelines tr.liste_titre_create').next().children('td.linecoldescription').first().after('<td class="linecolstockvirtual nobottom" align="right"></td><td class="linecolstock nobottom" align="right"></td>');
-				$('#trlinefordates td:first').after('<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>'); // Add empty column in objectline_create
-				if($('tr[id^="extrarow"]').length > 0) $('tr[id^="extrarow"] td:first').after('<td class="linecolstockvirtual" align="right"></td<td class="linecolstock" align="right"></td>');
-			</script>
+					let shipOrderJsConf = <?php echo json_encode($jsConf); ?>;
+					let emptyCols = '<td class="linecolstockvirtual" align="right"></td><td class="linecolstock" align="right"></td>';
+					let colSpanToAdd = 1; // TODO normalement c'est 2 mais je sais pas pourquoi ça créé un décalage
+
+					// Header line
+                    $('table#tablelines tr.liste_titre .linecoldescription').first().after(
+						'<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">:' + shipOrderJsConf.langs.TheoreticalStock + '</td>'
+						+ '<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.RealStock + '</td>');
+
+
+
+					// Subtotal Compatibility
+					$('table#tablelines tr[rel="subtotal"]').each(function( index ) {
+						let col = $(this).find('td[colspan]:first');
+						if(col){
+							// title and subtitle must have colspan if not it's pro
+							let curentColSpan = parseInt(col.attr('colspan'));
+							col.attr('colspan', curentColSpan + colSpanToAdd);
+						}
+					});
+
+					if(shipOrderJsConf.lines != undefined && shipOrderJsConf.lines.length > 0){
+						shipOrderJsConf.lines.forEach(function (item, index, arr){
+							$('table#tablelines tr[id=row-' + item.id + '] td.linecoldescription').after(
+								'<td class="linecolstockvirtual nowrap" align="right">'+ item.stockVirtual +'</td>'
+								+'<td class="linecolstock nowrap" align="right">'+ item.stockReal +'</td>'
+							);
+						});
+					}
+
+
+                    $('table#tablelines tr.liste_titre_add td.linecoldescription').first().after(emptyCols);
+                    $('table#tablelines tr.liste_titre_add').next().children('td.linecoldescription').first().after(emptyCols);
+                    $('table#tablelines tr.liste_titre_create td.linecoldescription').first().after(emptyCols);
+                    $('table#tablelines tr.liste_titre_create').next().children('td.linecoldescription').first().after(emptyCols);
+                    $('#trlinefordates td:first').after(emptyCols); // Add empty column in objectline_create
+                    if($('tr[id^="extrarow"]').length > 0) $('tr[id^="extrarow"] td:first').after(emptyCols);
+                </script>
 			<?php
+            }
 		}
-
 	}
 
 }
