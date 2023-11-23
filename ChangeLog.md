@@ -5,7 +5,7 @@
 
 
 ## 2.3
-
+- FIX : Fix translation key for conflict with standard key *23/11/2023* 2.3.7
 - FIX : Wrong display of the stock when option "Autoriser l'expédition même si pas assez de stock" is enabled *09/11/2023* 2.3.6
 - FIX : Subtotal compatibility *13/11/2023* 2.3.5
 - FIX : wrong js selector *28/02/2022* 2.3.4
