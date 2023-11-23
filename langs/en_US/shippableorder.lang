@@ -60,3 +60,5 @@ PO = Purchase orders
 PO_status = "Approuved", "Ordered", "Partially received"
 PO_status_all =,"Draft", "Validated"
 Receptions_status = "Validated" and "Closed"
+ShippableOrder_Shipments = Shipments
+ShippableOrder_Receptions = Supplier receptions
