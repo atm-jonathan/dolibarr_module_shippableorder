@@ -69,7 +69,7 @@ class ActionsShippableorder
 
 					// Header line
                     $('table#tablelines tr.liste_titre .linecoldescription').first().after(
-						'<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">:' + shipOrderJsConf.langs.TheoreticalStock + '</td>'
+						'<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.TheoreticalStock + '</td>'
 						+ '<td class="linecolstock" align="right" style="color:' + shipOrderJsConf.textColor + ';">' + shipOrderJsConf.langs.RealStock + '</td>');
 
 
