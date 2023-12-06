@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 2.4
+- FIX : FIX compat V19 et php8.2 *29/11/2023* 2.4.0
 
 
 ## 2.3
