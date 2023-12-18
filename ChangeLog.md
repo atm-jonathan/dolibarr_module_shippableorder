@@ -1,10 +1,9 @@
 # ChangeLog for ShippableOrder
 
 ## Unreleased
-
-## 2.4
-- FIX : FIX compat V19 et php8.2 *29/11/2023* 2.4.0
-
+- NEW : Compat V19 et php 8.2 *15/12/2023* - 2.4.0 
+  Changed Dolibarr compatibility range to 15 min - 19 max  
+  Change PHP compatibility range to 7.0 min - 8.2 max
 
 ## 2.3
 - FIX : Fix typo *24/11/2023* 2.3.8
